@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: concert-postgres
+    environment:
+      POSTGRES_DB: concert_db
+      POSTGRES_USER: concert_user
+      POSTGRES_PASSWORD: concert_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U concert_user -d concert_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: concert-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: concert-app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://concert_user:concert_pass@postgres:5432/concert_db
+      JWT_SECRET: your-super-secret-jwt-key-minimum-32-characters-long-here
+      JWT_REFRESH_SECRET: your-refresh-secret-minimum-32-characters-long-here
+      JWT_ACCESS_EXPIRY: 15m
+      JWT_REFRESH_EXPIRY: 7d
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      FRONTEND_URL: http://localhost:3000
+      HOLD_TTL_SECONDS: 600
+      HOLD_CLEANUP_INTERVAL: 60000
+      REDIS_URL: redis://redis:6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm run dev"
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: concert-worker
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://concert_user:concert_pass@postgres:5432/concert_db
+      HOLD_CLEANUP_INTERVAL: 60000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: npm run worker
+
+volumes:
+  postgres_data:
