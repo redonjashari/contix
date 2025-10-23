@@ -20,13 +20,13 @@ export const OrderService = {
   async createOrder(opts: CreateOrderOpts) {
     const { userId, eventId, totalInCents, currency = 'usd', holdToken } = opts;
 
-    const totalAmountDecimal = new Prisma.Decimal((totalInCents / 100).toFixed(2));
+    const totalAmount = totalInCents / 100;
 
     const order = await prisma.order.create({
       data: {
         userId,
         eventId,
-        totalAmount: totalAmountDecimal,
+        totalAmount: totalAmount,
         currency,
         status: 'PENDING',
         holdToken: holdToken ?? null,
@@ -52,7 +52,7 @@ export const OrderService = {
         provider: 'stripe',
         providerEvent: pi.id,
         status: 'PENDING',
-        amount: new Prisma.Decimal((totalInCents / 100).toFixed(2)),
+        amount: totalInCents / 100,
         currency,
       },
     });
@@ -63,7 +63,7 @@ export const OrderService = {
   // You will call this from your webhook handler when Stripe reports success.
   async finalizePayment(paymentProviderEventId: string) {
     // find payment
-    const payment = await prisma.payment.findUnique({ where: { providerEvent: paymentProviderEventId } });
+    const payment = await prisma.payment.findFirst({ where: { providerEvent: paymentProviderEventId } });
     if (!payment) throw new Error('Payment not found');
 
     // transaction: mark payment succeeded and order PAID, update seats/tickets as needed

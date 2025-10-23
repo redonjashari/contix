@@ -14,7 +14,19 @@ export async function holdRoutes(fastify: FastifyInstance) {
         },
         required: ['eventId'],
       },
-      body: createHoldSchema,
+      body: {
+        type: 'object',
+        required: ['seats'],
+        properties: {
+          seats: {
+            type: 'array',
+            items: { type: 'string', pattern: '^[A-Z]-\\d+-\\d+$' },
+            minItems: 1,
+            maxItems: 10,
+          },
+          ttlSeconds: { type: 'number', minimum: 60, maximum: 3600 },
+        },
+      },
       response: {
         201: {
           type: 'object',

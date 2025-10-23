@@ -56,13 +56,14 @@ export const VenueService = {
     const venue = await prisma.venue.findUnique({ where: { id: venueId } });
     if (!venue) throw new Error('Venue not found');
 
+    const updateData: any = {};
+    if (updates.name !== undefined) updateData.name = updates.name;
+    if (updates.address !== undefined) updateData.address = updates.address;
+    if (updates.capacity !== undefined) updateData.capacity = updates.capacity;
+
     const updated = await prisma.venue.update({
       where: { id: venueId },
-      data: {
-        name: updates.name ?? undefined,
-        address: updates.address ?? undefined,
-        capacity: updates.capacity ?? undefined,
-      },
+      data: updateData,
     });
 
     logger.info({ action: 'updateVenue', venueId }, 'Venue updated');
@@ -109,10 +110,12 @@ export const VenueService = {
    * Get venue by id (with optional relations)
    */
   async getVenueById(venueId: string, opts?: { includeEvents?: boolean }) {
-    const venue = await prisma.venue.findUnique({
-      where: { id: venueId },
-      include: opts?.includeEvents ? { events: true } : undefined,
-    });
+    const query: any = { where: { id: venueId } };
+    if (opts?.includeEvents) {
+      query.include = { events: true };
+    }
+    
+    const venue = await prisma.venue.findUnique(query);
     if (!venue) throw new Error('Venue not found');
     return venue;
   },
@@ -122,15 +125,19 @@ export const VenueService = {
    */
   async listVenues(opts?: { skip?: number; take?: number; q?: string }) {
     const where: Prisma.VenueWhereInput | undefined = opts?.q
-      ? { OR: [{ name: { contains: opts.q, mode: 'insensitive' } }, { address: { contains: opts.q, mode: 'insensitive' } }] }
+      ? { OR: [{ name: { contains: opts.q } }, { address: { contains: opts.q } }] }
       : undefined;
 
-    const venues = await prisma.venue.findMany({
-      where,
+    const query: any = {
       skip: opts?.skip,
       take: opts?.take ?? 50,
       orderBy: { createdAt: 'desc' },
-    });
+    };
+    if (where) {
+      query.where = where;
+    }
+
+    const venues = await prisma.venue.findMany(query);
 
     return venues;
   },
@@ -144,12 +151,16 @@ export const VenueService = {
       where.startAt = { gte: new Date() };
     }
 
-    const events = await prisma.event.findMany({
+    const query: any = {
       where,
-      skip: opts?.skip,
       take: opts?.take ?? 50,
       orderBy: { startAt: 'asc' },
-    });
+    };
+    if (opts?.skip !== undefined) {
+      query.skip = opts.skip;
+    }
+
+    const events = await prisma.event.findMany(query);
 
     return events;
   },

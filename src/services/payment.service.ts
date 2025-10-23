@@ -4,7 +4,7 @@ import { env } from '../config/env.js';
 import { TicketService } from './ticket.service.js';
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2025-09-30.clover',
 });
 
 const prisma = new PrismaClient();
@@ -42,7 +42,7 @@ export class PaymentService {
     const order = await prisma.order.create({
       data: {
         userId,
-        eventId: holds[0].eventId,
+        eventId: holds[0]!.eventId,
         totalAmount,
         currency: 'usd',
         status: 'PENDING',
@@ -103,17 +103,25 @@ export class PaymentService {
         env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
-      throw new Error(`Webhook signature verification failed: ${err.message}`);
+      throw new Error(`Webhook signature verification failed: ${err instanceof Error ? err.message : String(err)}`);
     }
 
     if (event.type === 'payment_intent.succeeded') {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       const orderId = paymentIntent.metadata.orderId;
+      
+      if (!orderId) {
+        throw new Error('Order ID not found in payment intent metadata');
+      }
 
       await this.finalizeOrder(orderId);
     } else if (event.type === 'payment_intent.payment_failed') {
       const paymentIntent = event.data.object as Stripe.PaymentIntent;
       const orderId = paymentIntent.metadata.orderId;
+      
+      if (!orderId) {
+        throw new Error('Order ID not found in payment intent metadata');
+      }
 
       await this.failOrder(orderId);
     }

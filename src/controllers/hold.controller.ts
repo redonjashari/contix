@@ -4,13 +4,7 @@ import { SeatService } from '../services/seat.service.js';
 const seatService = new SeatService();
 
 export async function createHold(
-  request: FastifyRequest<{
-    Params: { eventId: string };
-    Body: {
-      seats: string[];
-      ttlSeconds?: number;
-    };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
@@ -36,9 +30,7 @@ export async function createHold(
 }
 
 export async function getHoldStatus(
-  request: FastifyRequest<{
-    Params: { holdToken: string };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {

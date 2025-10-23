@@ -97,14 +97,13 @@ export const AdminService = {
           section: s.section,
           row: s.row,
           number: s.number,
-          price: new Prisma.Decimal(s.price.toFixed ? s.price.toFixed(2) : String(s.price)),
+          price: Number(s.price),
         }));
 
         // create many seats
         // Note: Prisma's createMany doesn't return created rows. If you need them, use loop or a batch
         await tx.seat.createMany({
           data: seatCreates,
-          skipDuplicates: true, // skip on unique constraint collision
         });
       }
 
@@ -217,12 +216,11 @@ export const AdminService = {
       section: s.section,
       row: s.row,
       number: s.number,
-      price: new Prisma.Decimal(s.price.toFixed ? s.price.toFixed(2) : String(s.price)),
+      price: Number(s.price),
     }));
 
     const res = await prisma.seat.createMany({
       data: createData,
-      skipDuplicates: true,
     });
 
     logger.info({ action: 'createSeats', eventId, createdCount: res.count }, 'Seats created');

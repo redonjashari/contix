@@ -4,11 +4,7 @@ import { PaymentService } from '../services/payment.service.js';
 const paymentService = new PaymentService();
 
 export async function createPaymentIntent(
-  request: FastifyRequest<{
-    Body: {
-      holdToken: string;
-    };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
@@ -27,12 +23,7 @@ export async function createPaymentIntent(
 }
 
 export async function handleWebhook(
-  request: FastifyRequest<{
-    Body: string;
-    Headers: {
-      'stripe-signature': string;
-    };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {

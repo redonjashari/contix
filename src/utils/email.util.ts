@@ -1,4 +1,4 @@
-import { logger } from './logger.util';
+import { logger } from './logger.util.js';
 
 export interface OrderConfirmationData {
   userEmail: string;
@@ -24,12 +24,12 @@ export async function sendOrderConfirmation(
 ): Promise<void> {
   // TODO: Implement actual email sending
   // For development, just log
-  logger.info('Order confirmation email:', {
+  logger.info({
     to: data.userEmail,
     subject: `Your tickets for ${data.eventTitle}`,
     orderId: data.orderId,
     ticketCount: data.tickets.length,
-  });
+  }, 'Order confirmation email');
 
   // In production:
   // await sendgrid.send({

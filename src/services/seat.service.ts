@@ -109,7 +109,7 @@ export class SeatService {
         totalAmount,
       } as HoldResult;
     }, {
-      isolationLevel: Prisma.TransactionIsolationLevel.ReadCommitted,
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
       timeout: 10000,
     });
   }
@@ -151,7 +151,6 @@ export class SeatService {
       const chunk = rows.slice(i, i + chunkSize);
       const res = await prisma.seat.createMany({
         data: chunk,
-        skipDuplicates: true, // optional
       });
       totalInserted += res.count ?? 0;
     }

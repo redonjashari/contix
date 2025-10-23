@@ -7,6 +7,7 @@ import {
   Hold, 
   Order, 
   Ticket, 
+  Venue,
   PaymentIntent,
   AuthResponse,
   LoginRequest,

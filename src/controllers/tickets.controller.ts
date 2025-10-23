@@ -21,9 +21,7 @@ export async function getTicketsByUser(
 }
 
 export async function getTicketByCode(
-  request: FastifyRequest<{
-    Params: { code: string };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
@@ -35,9 +33,7 @@ export async function getTicketByCode(
 }
 
 export async function scanTicket(
-  request: FastifyRequest<{
-    Params: { code: string };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {

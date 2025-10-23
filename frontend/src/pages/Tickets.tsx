@@ -67,14 +67,14 @@ export const Tickets: React.FC = () => {
 
               <div className="space-y-3">
                 <div>
-                  <h3 className="font-semibold text-gray-900">{ticket.order.event.title}</h3>
-                  <p className="text-sm text-gray-600">{ticket.order.event.venue.name}</p>
+                  <h3 className="font-semibold text-gray-900">{ticket.order.event?.title || 'Event'}</h3>
+                  <p className="text-sm text-gray-600">{ticket.order.event?.venue?.name || 'Venue'}</p>
                 </div>
 
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <Calendar className="w-4 h-4" />
-                    <span>{new Date(ticket.order.event.startAt).toLocaleDateString()}</span>
+                    <span>{ticket.order.event?.startAt ? new Date(ticket.order.event.startAt).toLocaleDateString() : 'TBD'}</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <MapPin className="w-4 h-4" />

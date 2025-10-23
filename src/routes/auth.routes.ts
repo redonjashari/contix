@@ -5,7 +5,15 @@ import { registerSchema, loginSchema, refreshSchema } from '../utils/validation.
 export async function authRoutes(fastify: FastifyInstance) {
   fastify.post('/register', {
     schema: {
-      body: registerSchema,
+      body: {
+        type: 'object',
+        required: ['email', 'password', 'name'],
+        properties: {
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string', minLength: 8 },
+          name: { type: 'string', minLength: 2 },
+        },
+      },
       response: {
         201: {
           type: 'object',
@@ -27,7 +35,14 @@ export async function authRoutes(fastify: FastifyInstance) {
 
   fastify.post('/login', {
     schema: {
-      body: loginSchema,
+      body: {
+        type: 'object',
+        required: ['email', 'password'],
+        properties: {
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string', minLength: 1 },
+        },
+      },
       response: {
         200: {
           type: 'object',
@@ -49,7 +64,13 @@ export async function authRoutes(fastify: FastifyInstance) {
 
   fastify.post('/refresh', {
     schema: {
-      body: refreshSchema,
+      body: {
+        type: 'object',
+        required: ['refreshToken'],
+        properties: {
+          refreshToken: { type: 'string', minLength: 1 },
+        },
+      },
       response: {
         200: {
           type: 'object',

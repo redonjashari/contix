@@ -29,7 +29,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   ]
 
   const adminNavigation = [
-    { name: 'Admin', href: '/admin', icon: Settings, requireAdmin: true },
+    { name: 'Admin', href: '/admin', icon: Settings, requireAuth: true, requireAdmin: true },
   ]
 
   const isActive = (path: string) => location.pathname === path
@@ -52,7 +52,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <nav className="hidden md:flex space-x-8">
               {navigation.map((item) => {
                 if (item.requireAuth && !user) return null
-                if (item.requireAdmin && user?.role !== 'ADMIN') return null
+                if ((item as any).requireAdmin && user?.role !== 'ADMIN') return null
                 
                 const Icon = item.icon
                 return (
@@ -142,7 +142,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="px-2 pt-2 pb-3 space-y-1">
               {navigation.map((item) => {
                 if (item.requireAuth && !user) return null
-                if (item.requireAdmin && user?.role !== 'ADMIN') return null
+                if ((item as any).requireAdmin && user?.role !== 'ADMIN') return null
                 
                 const Icon = item.icon
                 return (

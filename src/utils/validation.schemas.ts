@@ -44,6 +44,13 @@ export const createVenueSchema = z.object({
   capacity: z.number().int().positive(),
 });
 
+export const createSeatSchema = z.object({
+  section: z.string().min(1),
+  row: z.string().min(1),
+  number: z.string().min(1),
+  price: z.number().positive(),
+});
+
 export const paginationSchema = z.object({
   limit: z.string().transform(Number).pipe(z.number().int().positive().max(100)).optional(),
   offset: z.string().transform(Number).pipe(z.number().int().nonnegative()).optional(),

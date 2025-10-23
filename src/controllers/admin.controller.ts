@@ -48,9 +48,7 @@ export async function getDashboardStats(request: FastifyRequest, reply: FastifyR
 }
 
 export async function createVenue(
-  request: FastifyRequest<{
-    Body: { name: string; address: string; capacity: number };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
@@ -72,15 +70,12 @@ export async function createVenue(
 }
 
 export async function updateVenue(
-  request: FastifyRequest<{
-    Params: { id: string };
-    Body: Partial<{ name: string; address: string; capacity: number }>;
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
     const updates = request.body ?? {};
-    const venue = await VenueService.updateVenue(request.params.id, updates);
+    const venue = await VenueService.updateVenue((request.params as any).id, updates);
     return reply.send({ venue });
   } catch (err: any) {
     // If the service throws "Venue not found" treat as 404
@@ -175,7 +170,7 @@ export async function updateUserRole(
   reply: FastifyReply
 ) {
   try {
-    const { id } = request.params;
+    const { id } = request.params as any;
     const { role } = request.body ?? {};
 
     if (role !== 'USER' && role !== 'ADMIN') {
@@ -201,21 +196,11 @@ export async function updateUserRole(
 }
 
 export async function createEvent(
-  request: FastifyRequest<{
-    Body: {
-      venueId: string;
-      title: string;
-      description: string;
-      startAt: string;
-      endAt: string;
-      genre?: string;
-      posterPath?: string;
-    };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    const body = request.body;
+    const body = request.body as any;
     const event = await EventService.createEvent(body);
     return reply.code(201).send(event);
   } catch (err: any) {
@@ -224,23 +209,12 @@ export async function createEvent(
 }
 
 export async function updateEvent(
-  request: FastifyRequest<{
-    Params: { id: string };
-    Body: {
-      venueId?: string;
-      title?: string;
-      description?: string;
-      startAt?: string;
-      endAt?: string;
-      genre?: string;
-      posterPath?: string;
-    };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    const { id } = request.params;
-    const updates = request.body;
+    const { id } = request.params as any;
+    const updates = request.body as any;
     const event = await EventService.updateEvent(id, updates);
     return reply.send(event);
   } catch (err: any) {
@@ -250,13 +224,11 @@ export async function updateEvent(
 }
 
 export async function deleteEvent(
-  request: FastifyRequest<{
-    Params: { id: string };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    const { id } = request.params;
+    const { id } = request.params as any;
     await EventService.deleteEvent(id);
     return reply.code(204).send();
   } catch (err: any) {
@@ -266,13 +238,11 @@ export async function deleteEvent(
 }
 
 export async function deleteVenue(
-  request: FastifyRequest<{
-    Params: { id: string };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    const { id } = request.params;
+    const { id } = request.params as any;
     await VenueService.deleteVenue(id);
     return reply.code(204).send();
   } catch (err: any) {
@@ -282,17 +252,12 @@ export async function deleteVenue(
 }
 
 export async function createSeats(
-  request: FastifyRequest<{
-    Params: { eventId: string };
-    Body: {
-      seats: Array<{ section: string; row: string; number: string; price: number }>;
-    };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    const { eventId } = request.params;
-    const { seats } = request.body;
+    const { eventId } = request.params as any;
+    const { seats } = request.body as any;
     const result = await seatService.bulkCreateSeats(eventId, seats);
     return reply.code(201).send(result);
   } catch (err: any) {
@@ -301,14 +266,12 @@ export async function createSeats(
 }
 
 export async function getUsers(
-  request: FastifyRequest<{
-    Querystring: { limit?: string; offset?: string };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    const limit = Math.min(Math.max(parseInt(request.query.limit || '20', 10), 1), 200);
-    const offset = Math.max(parseInt(request.query.offset || '0', 10), 0);
+    const limit = Math.min(Math.max(parseInt((request.query as any).limit || '20', 10), 1), 200);
+    const offset = Math.max(parseInt((request.query as any).offset || '0', 10), 0);
 
     const users = await prisma.user.findMany({
       select: {

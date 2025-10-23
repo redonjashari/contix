@@ -33,12 +33,7 @@ export async function getCurrentUser(
 }
 
 export async function updateCurrentUser(
-  request: FastifyRequest<{
-    Body: {
-      name?: string;
-      email?: string;
-    };
-  }>,
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
