@@ -9,10 +9,10 @@
 
 import jwt from 'jsonwebtoken';
 
-const ACCESS_SECRET = process.env.ACCESS_TOKEN_SECRET || 'dev-access-secret';
-const REFRESH_SECRET = process.env.REFRESH_TOKEN_SECRET || 'dev-refresh-secret';
-const ACCESS_EXPIRES_IN = process.env.ACCESS_TOKEN_EXPIRES_IN || '15m';
-const REFRESH_EXPIRES_IN = process.env.REFRESH_TOKEN_EXPIRES_IN || '7d';
+const ACCESS_SECRET = process.env.JWT_SECRET || 'dev-access-secret';
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret';
+const ACCESS_EXPIRES_IN = process.env.JWT_ACCESS_EXPIRY || '15m';
+const REFRESH_EXPIRES_IN = process.env.JWT_REFRESH_EXPIRY || '7d';
 
 export type AccessPayload = {
   sub: string; // user id
@@ -47,7 +47,7 @@ export function verifyRefreshToken(token: string): RefreshPayload {
 // helper to compute expiresAt Date for refresh tokens (rough parsing: n d/h/m)
 export function computeRefreshTokenExpiryDate(): Date {
   // simple parsing: supports "Nd", "Nh", "Nm", or plain ms number
-  const s = process.env.REFRESH_TOKEN_EXPIRES_IN || REFRESH_EXPIRES_IN;
+  const s = process.env.JWT_REFRESH_EXPIRY || REFRESH_EXPIRES_IN;
   const now = Date.now();
   if (/^\d+$/.test(s)) {
     return new Date(now + Number(s));

@@ -4,11 +4,11 @@ import { signAccessToken, signRefreshToken } from '../utils/jwt.util.js';
 
 
 export const AuthService = {
-async register(email: string, password: string) {
+async register(email: string, password: string, name: string) {
 const existing = await prisma.user.findUnique({ where: { email } });
 if (existing) throw new Error('Email already in use');
 const passwordHash = await hashPassword(password);
-const user = await prisma.user.create({ data: { email, passwordHash } });
+const user = await prisma.user.create({ data: { email, passwordHash, name } });
 const accessToken = signAccessToken({ sub: user.id, email: user.email });
 const refreshToken = signRefreshToken({ sub: user.id });
 return { user, accessToken, refreshToken };

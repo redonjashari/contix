@@ -59,6 +59,33 @@ export class TicketService {
   }
 
   /**
+   * Get all tickets for a user
+   */
+  async getTicketsByUser(userId: string) {
+    const tickets = await prisma.ticket.findMany({
+      where: {
+        order: {
+          userId,
+        },
+      },
+      include: {
+        seat: true,
+        order: {
+          include: {
+            event: true,
+            user: true,
+          },
+        },
+      },
+      orderBy: {
+        issuedAt: 'desc',
+      },
+    });
+
+    return tickets;
+  }
+
+  /**
    * Fetch ticket by its code (includes order, seat, event, user)
    */
   async getTicketByCode(ticketCode: string) {

@@ -52,8 +52,25 @@ export function getLogger(bindings?: Bindings): Logger {
 }
 
 /** Provide a logger object that can be passed directly to Fastify({ logger }) */
-export function makeFastifyLogger(): Logger {
-  return logger;
+export function makeFastifyLogger() {
+  if (NODE_ENV === 'development') {
+    return {
+      level: LOG_LEVEL,
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          colorize: true,
+          ignore: 'pid,hostname',
+          translateTime: 'SYS:standard',
+          singleLine: false,
+        },
+      },
+    };
+  }
+
+  return {
+    level: LOG_LEVEL,
+  };
 }
 
 /**

@@ -20,3 +20,10 @@ export const authRateLimit = {
     message: 'Too many login attempts. Please try again later.',
   }),
 };
+
+// General rate limiting middleware
+export async function rateLimitMiddleware(request: FastifyRequest, reply: FastifyReply) {
+  // This is handled by the fastify-rate-limit plugin
+  // This function can be used for custom rate limiting logic if needed
+  return;
+}

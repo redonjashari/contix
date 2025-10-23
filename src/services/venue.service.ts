@@ -141,14 +141,14 @@ export const VenueService = {
   async getEventsForVenue(venueId: string, opts?: { upcomingOnly?: boolean; skip?: number; take?: number }) {
     const where: Prisma.EventWhereInput = { venueId };
     if (opts?.upcomingOnly) {
-      where.startTime = { gte: new Date() };
+      where.startAt = { gte: new Date() };
     }
 
     const events = await prisma.event.findMany({
       where,
       skip: opts?.skip,
       take: opts?.take ?? 50,
-      orderBy: { startTime: 'asc' },
+      orderBy: { startAt: 'asc' },
     });
 
     return events;

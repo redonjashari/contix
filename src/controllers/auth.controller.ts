@@ -9,8 +9,8 @@ import { AuthService } from '../services/auth.service.js';
 export const AuthController = {
 async register(request: FastifyRequest, reply: FastifyReply) {
 try {
-const { email, password } = request.body as any;
-const result = await AuthService.register(email, password);
+const { email, password, name } = request.body as any;
+const result = await AuthService.register(email, password, name);
 reply.code(201).send(result);
 } catch (err: any) {
 reply.code(400).send({ error: err.message });

@@ -83,8 +83,8 @@ export const AdminService = {
           venueId: data.venueId,
           title: data.title,
           description: data.description,
-          startTime: start,
-          endTime: end,
+          startAt: start,
+          endAt: end,
           genre: data.genre ?? null,
           posterPath: data.posterPath ?? null,
         },
@@ -127,10 +127,10 @@ export const AdminService = {
 
     // validate times if provided
     const dataToUpdate: any = {};
-    if (updates.startTime) dataToUpdate.startTime = new Date(updates.startTime as any);
-    if (updates.endTime) dataToUpdate.endTime = new Date(updates.endTime as any);
-    if (dataToUpdate.startTime && dataToUpdate.endTime && dataToUpdate.startTime >= dataToUpdate.endTime) {
-      throw new Error('startTime must be before endTime');
+    if (updates.startTime) dataToUpdate.startAt = new Date(updates.startTime as any);
+    if (updates.endTime) dataToUpdate.endAt = new Date(updates.endTime as any);
+    if (dataToUpdate.startAt && dataToUpdate.endAt && dataToUpdate.startAt >= dataToUpdate.endAt) {
+      throw new Error('startAt must be before endAt');
     }
 
     if (updates.title !== undefined) dataToUpdate.title = updates.title;
@@ -164,10 +164,10 @@ export const AdminService = {
       throw new Error('Event has paid orders and cannot be cancelled');
     }
 
-    // Set endTime to now to effectively cancel upcoming event
+    // Set endAt to now to effectively cancel upcoming event
     const cancelled = await prisma.event.update({
       where: { id: eventId },
-      data: { endTime: new Date() },
+      data: { endAt: new Date() },
     });
 
     logger.info({ action: 'cancelEvent', eventId }, 'Event cancelled (endTime set to now)');
@@ -410,7 +410,7 @@ export const AdminService = {
   async getEventStats() {
     // simple example: total events and upcoming events
     const total = await prisma.event.count();
-    const upcoming = await prisma.event.count({ where: { startTime: { gte: new Date() } } });
+    const upcoming = await prisma.event.count({ where: { startAt: { gte: new Date() } } });
     return { total, upcoming };
   },
 };

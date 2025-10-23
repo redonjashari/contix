@@ -199,3 +199,145 @@ export async function updateUserRole(
     return reply.code(status).send({ error: err?.message ?? 'Could not update user role' });
   }
 }
+
+export async function createEvent(
+  request: FastifyRequest<{
+    Body: {
+      venueId: string;
+      title: string;
+      description: string;
+      startAt: string;
+      endAt: string;
+      genre?: string;
+      posterPath?: string;
+    };
+  }>,
+  reply: FastifyReply
+) {
+  try {
+    const body = request.body;
+    const event = await EventService.createEvent(body);
+    return reply.code(201).send(event);
+  } catch (err: any) {
+    return reply.code(400).send({ error: err?.message ?? 'Could not create event' });
+  }
+}
+
+export async function updateEvent(
+  request: FastifyRequest<{
+    Params: { id: string };
+    Body: {
+      venueId?: string;
+      title?: string;
+      description?: string;
+      startAt?: string;
+      endAt?: string;
+      genre?: string;
+      posterPath?: string;
+    };
+  }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = request.params;
+    const updates = request.body;
+    const event = await EventService.updateEvent(id, updates);
+    return reply.send(event);
+  } catch (err: any) {
+    const status = err?.message?.toLowerCase?.().includes('not found') ? 404 : 400;
+    return reply.code(status).send({ error: err?.message ?? 'Could not update event' });
+  }
+}
+
+export async function deleteEvent(
+  request: FastifyRequest<{
+    Params: { id: string };
+  }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = request.params;
+    await EventService.deleteEvent(id);
+    return reply.code(204).send();
+  } catch (err: any) {
+    const status = err?.message?.toLowerCase?.().includes('not found') ? 404 : 400;
+    return reply.code(status).send({ error: err?.message ?? 'Could not delete event' });
+  }
+}
+
+export async function deleteVenue(
+  request: FastifyRequest<{
+    Params: { id: string };
+  }>,
+  reply: FastifyReply
+) {
+  try {
+    const { id } = request.params;
+    await VenueService.deleteVenue(id);
+    return reply.code(204).send();
+  } catch (err: any) {
+    const status = err?.message?.toLowerCase?.().includes('not found') ? 404 : 400;
+    return reply.code(status).send({ error: err?.message ?? 'Could not delete venue' });
+  }
+}
+
+export async function createSeats(
+  request: FastifyRequest<{
+    Params: { eventId: string };
+    Body: {
+      seats: Array<{ section: string; row: string; number: string; price: number }>;
+    };
+  }>,
+  reply: FastifyReply
+) {
+  try {
+    const { eventId } = request.params;
+    const { seats } = request.body;
+    const result = await seatService.bulkCreateSeats(eventId, seats);
+    return reply.code(201).send(result);
+  } catch (err: any) {
+    return reply.code(400).send({ error: err?.message ?? 'Could not create seats' });
+  }
+}
+
+export async function getUsers(
+  request: FastifyRequest<{
+    Querystring: { limit?: string; offset?: string };
+  }>,
+  reply: FastifyReply
+) {
+  try {
+    const limit = Math.min(Math.max(parseInt(request.query.limit || '20', 10), 1), 200);
+    const offset = Math.max(parseInt(request.query.offset || '0', 10), 0);
+
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        isVerified: true,
+        createdAt: true,
+      },
+      take: limit,
+      skip: offset,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return reply.send(users);
+  } catch (err: any) {
+    return reply.code(500).send({ error: err?.message ?? 'Could not get users' });
+  }
+}
+
+export async function getUserStats(
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  try {
+    const stats = await AdminService.getUserStats();
+    return reply.send(stats);
+  } catch (err: any) {
+    return reply.code(500).send({ error: err?.message ?? 'Could not get user stats' });
+  }
+}

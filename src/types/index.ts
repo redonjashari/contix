@@ -11,3 +11,4 @@ role?: string;
 export interface AuthenticatedRequest<T = unknown> extends FastifyRequest {
 user?: AuthenticatedUser;
 body: T;
+}

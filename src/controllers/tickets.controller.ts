@@ -3,21 +3,24 @@ import { TicketService } from '../services/ticket.service.js';
 
 const ticketService = new TicketService();
 
-export async function getOrderTickets(
-  request: FastifyRequest<{
-    Params: { id: string };
-  }>,
+export async function getTicketsByUser(
+  request: FastifyRequest,
   reply: FastifyReply
 ) {
   try {
-    const tickets = await ticketService.getOrderTickets(request.params.id);
-    reply.send({ tickets });
+    const user = (request as any).user;
+    if (!user) {
+      return reply.code(401).send({ error: 'Unauthorized' });
+    }
+
+    const tickets = await ticketService.getTicketsByUser(user.id);
+    reply.send(tickets);
   } catch (err: any) {
     reply.code(404).send({ error: err.message });
   }
 }
 
-export async function validateTicket(
+export async function getTicketByCode(
   request: FastifyRequest<{
     Params: { code: string };
   }>,
@@ -25,10 +28,7 @@ export async function validateTicket(
 ) {
   try {
     const ticket = await ticketService.getTicketByCode(request.params.code);
-    reply.send({
-      valid: ticket.order.status === 'PAID',
-      ticket,
-    });
+    reply.send(ticket);
   } catch (err: any) {
     reply.code(404).send({ error: err.message });
   }
@@ -36,14 +36,17 @@ export async function validateTicket(
 
 export async function scanTicket(
   request: FastifyRequest<{
-    Body: {
-      ticketCode: string;
-    };
+    Params: { code: string };
   }>,
   reply: FastifyReply
 ) {
   try {
-    const result = await ticketService.scanTicket(request.body.ticketCode);
+    const user = (request as any).user;
+    if (!user) {
+      return reply.code(401).send({ error: 'Unauthorized' });
+    }
+
+    const result = await ticketService.scanTicket(request.params.code);
     reply.send(result);
   } catch (err: any) {
     reply.code(400).send({ error: err.message });
